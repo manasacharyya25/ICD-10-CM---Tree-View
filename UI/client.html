@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="./tree.jquery.js"></script>
+    <link rel="stylesheet" href="jqtree.css">
+    <title>Document</title>
+
+    <script>
+        $(document).ready(function () {
+            code = "D58.2"
+            $.ajax({
+                url: 'http://127.0.0.1:8000/icd/'+code,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data, textStatus, xhr) {
+                    loadTree(data, code)
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error in Operation');
+                }
+            });
+        });
+
+        function loadTree(data, code) {
+            console.log(data)
+            const $tree = $('#tree');
+            $tree.tree({
+               data: data,
+               autoEscape: false,
+               closedIcon: '+'
+            });
+            $tree.removeAttr("style");
+            selectNode(code)
+        }
+
+        function selectNode(id) {
+            var $tree = $('#tree');
+            var node = $tree.tree('getSelectedNode');
+            if (node) {
+                while (true) {
+                    if (node.parent.id == undefined) {
+                        break;
+                    }
+                    node = node.parent;
+                }
+                $tree.tree('toggle', node)
+            }
+            node = $tree.tree('getNodeById', id);
+            $tree.tree('selectNode', node);
+            $tree.tree('scrollToNode', node);
+        }
+    </script>
+</head>
+<body>
+    <div id="tree"></div>
+</body>
+</html>
+
